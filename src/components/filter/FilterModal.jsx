@@ -56,10 +56,13 @@ const Overlay = styled.div`
 `;
 
 const ModalBox = styled.div`
-  width: 230px;
+  width: fit-content;
+  min-width: 228px;
+  max-width: 360px;
+
   background: #fff;
-  border-radius: 16px;
-  padding: 18px;
+  border-radius: 25px;
+  padding: 30px 37px 48px 35px;
 `;
 
 const ModalHeader = styled.div`
@@ -69,10 +72,12 @@ const ModalHeader = styled.div`
 `;
 
 const Title = styled.p`
+  margin: 0;
   font-family: "Pretendard", sans-serif;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
+  line-height: normal;
 `;
 
 const CloseButton = styled.button`
@@ -103,7 +108,15 @@ const OptionButton = styled.button`
   border: none;
   border-radius: 20px;
   background: #f2f2f2;
-  padding: 7px 10px;
-  font-size: 12px;
+  padding: 8px 16px;
+
+  color: #616161;
+  font-family: "Pretendard", sans-serif;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+
+  text-align: center;
   cursor: pointer;
 `;
