@@ -33,21 +33,11 @@ export default function FilterModal({
   selectedFilter,
   currentSelections,
   onClose,
-  onApply,
+  onOptionToggle,
 }) {
-  const [selected, setSelected] = useState(currentSelections);
   const { layout, options } = FILTER_OPTIONS[selectedFilter] || {
     layout: "row",
     options: [],
-  };
-
-  const toggle = (option) => {
-    const next = selected.includes(option)
-      ? selected.filter((o) => o !== option)
-      : [...selected, option];
-
-    setSelected(next);
-    onApply(selectedFilter, next);
   };
 
   const colorRows =
@@ -72,8 +62,8 @@ export default function FilterModal({
                 {group.map((option) => (
                   <OptionButton
                     key={option}
-                    $isSelected={selected.includes(option)}
-                    onClick={() => toggle(option)}
+                    $isSelected={currentSelections.includes(option)}
+                    onClick={() => onOptionToggle(selectedFilter, option)}
                   >
                     {option}
                   </OptionButton>
@@ -88,8 +78,8 @@ export default function FilterModal({
                 {row.map((option) => (
                   <OptionButton
                     key={option}
-                    $isSelected={selected.includes(option)}
-                    onClick={() => toggle(option)}
+                    $isSelected={currentSelections.includes(option)}
+                    onClick={() => onOptionToggle(selectedFilter, option)}
                   >
                     {option}
                   </OptionButton>
@@ -102,8 +92,8 @@ export default function FilterModal({
             {options.map((option) => (
               <OptionButton
                 key={option}
-                $isSelected={selected.includes(option)}
-                onClick={() => toggle(option)}
+                $isSelected={currentSelections.includes(option)}
+                onClick={() => onOptionToggle(selectedFilter, option)}
               >
                 {option}
               </OptionButton>
@@ -114,7 +104,6 @@ export default function FilterModal({
     </Overlay>
   );
 }
-
 const Overlay = styled.div`
   position: fixed;
   inset: 0;

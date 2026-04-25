@@ -13,9 +13,23 @@ export default function FilterSection({ onFilterChange }) {
     setOpenFilter((prev) => (prev === filterName ? null : filterName));
   };
 
-  const handleApply = (filterName, selectedOptions) => {
-    const next = { ...activeSelections, [filterName]: selectedOptions };
-    if (selectedOptions.length === 0) delete next[filterName];
+  // 옵션 하나를 클릭했을 때 선택/해제를 전부 여기서 처리
+  const handleOptionToggle = (filterName, option) => {
+    const current = activeSelections[filterName] || [];
+
+    const nextOptions = current.includes(option)
+      ? current.filter((item) => item !== option)
+      : [...current, option];
+
+    const next = {
+      ...activeSelections,
+      [filterName]: nextOptions,
+    };
+
+    if (nextOptions.length === 0) {
+      delete next[filterName];
+    }
+
     setActiveSelections(next);
     onFilterChange(next);
   };
@@ -38,7 +52,7 @@ export default function FilterSection({ onFilterChange }) {
           selectedFilter={openFilter}
           currentSelections={activeSelections[openFilter] || []}
           onClose={() => setOpenFilter(null)}
-          onApply={handleApply}
+          onOptionToggle={handleOptionToggle}
         />
       )}
     </>
