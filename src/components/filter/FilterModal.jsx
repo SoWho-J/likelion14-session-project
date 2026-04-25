@@ -1,122 +1,206 @@
+import { useState } from "react";
 import styled from "styled-components";
 import CloseIcon from "../../assets/icons/X.png";
 
-export default function FilterModal({ selectedFilter, onClose }) {
-  const options = FILTER_OPTIONS[selectedFilter] || [];
+const FILTER_OPTIONS = {
+  성별: { layout: "row", options: ["남성", "여성", "남녀공용"] },
+  색상: {
+    layout: "grid3",
+    options: [
+      "red",
+      "pink",
+      "blue",
+      "black",
+      "gray",
+      "denim",
+      "multi",
+      "rainbow",
+      "holographic",
+    ],
+  },
+  사이즈: {
+    layout: "size",
+    options: [
+      ["9", "10"],
+      ["S", "M", "L", "XL"],
+    ],
+  },
+  가격대: { layout: "row", options: ["0~30", "31~60", "61~90"] },
+  종류: { layout: "row", options: ["의류", "신발"] },
+};
+
+export default function FilterModal({
+  selectedFilter,
+  currentSelections,
+  onClose,
+  onApply,
+}) {
+  const [selected, setSelected] = useState(currentSelections);
+  const { layout, options } = FILTER_OPTIONS[selectedFilter] || {
+    layout: "row",
+    options: [],
+  };
+
+  const toggle = (option) => {
+    const next = selected.includes(option)
+      ? selected.filter((o) => o !== option)
+      : [...selected, option];
+
+    setSelected(next);
+    onApply(selectedFilter, next);
+  };
+
+  const colorRows =
+    layout === "grid3"
+      ? [options.slice(0, 3), options.slice(3, 6), options.slice(6, 9)]
+      : [];
 
   return (
-    <Overlay>
-      <ModalBox>
+    <Overlay onClick={onClose}>
+      <ModalBox $layout={layout} onClick={(e) => e.stopPropagation()}>
         <ModalHeader>
           <Title>{selectedFilter}</Title>
-
           <CloseButton onClick={onClose}>
             <CloseImage src={CloseIcon} alt="close" />
           </CloseButton>
         </ModalHeader>
 
-        <OptionWrap>
-          {options.map((option) => (
-            <OptionButton key={option}>{option}</OptionButton>
-          ))}
-        </OptionWrap>
+        {layout === "size" ? (
+          <SizeWrap>
+            {options.map((group, i) => (
+              <OptionRow key={i}>
+                {group.map((option) => (
+                  <OptionButton
+                    key={option}
+                    $isSelected={selected.includes(option)}
+                    onClick={() => toggle(option)}
+                  >
+                    {option}
+                  </OptionButton>
+                ))}
+              </OptionRow>
+            ))}
+          </SizeWrap>
+        ) : layout === "grid3" ? (
+          <ColorWrap>
+            {colorRows.map((row, i) => (
+              <OptionRow key={i}>
+                {row.map((option) => (
+                  <OptionButton
+                    key={option}
+                    $isSelected={selected.includes(option)}
+                    onClick={() => toggle(option)}
+                  >
+                    {option}
+                  </OptionButton>
+                ))}
+              </OptionRow>
+            ))}
+          </ColorWrap>
+        ) : (
+          <OptionRow>
+            {options.map((option) => (
+              <OptionButton
+                key={option}
+                $isSelected={selected.includes(option)}
+                onClick={() => toggle(option)}
+              >
+                {option}
+              </OptionButton>
+            ))}
+          </OptionRow>
+        )}
       </ModalBox>
     </Overlay>
   );
 }
 
-const FILTER_OPTIONS = {
-  성별: ["남성", "여성", "남녀공용"],
-  색상: [
-    "red",
-    "pink",
-    "blue",
-    "black",
-    "gray",
-    "denim",
-    "multi",
-    "rainbow",
-    "holographic",
-  ],
-  사이즈: ["9", "10", "S", "M", "L", "XL"],
-  가격대: ["0~30", "31~60", "61~90"],
-  종류: ["의류", "신발"],
-};
-
 const Overlay = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-
+  background: rgba(0, 0, 0, 0.25);
   display: flex;
   justify-content: center;
   align-items: center;
-
   z-index: 999;
 `;
 
 const ModalBox = styled.div`
-  width: fit-content;
-  min-width: 228px;
-  max-width: 360px;
-
+  width: ${({ $layout }) => ($layout === "grid3" ? "300px" : "fit-content")};
+  min-width: 260px;
+  max-width: 420px;
   background: #fff;
-  border-radius: 25px;
-  padding: 30px 37px 48px 35px;
+  border-radius: 20px;
+  padding: 28px 32px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
 `;
 
 const ModalHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 20px;
 `;
 
 const Title = styled.p`
   margin: 0;
   font-family: "Pretendard", sans-serif;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: normal;
+  font-size: 15px;
+  font-weight: 600;
+  color: #111;
 `;
 
 const CloseButton = styled.button`
   border: none;
   background: none;
-  padding: 0;
+  padding: 4px;
   cursor: pointer;
-
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+
+  &:hover {
+    background: #f2f2f2;
+  }
 `;
 
 const CloseImage = styled.img`
-  width: 13px;
-  height: 13px;
-  display: block;
+  width: 12px;
+  height: 12px;
 `;
 
-const OptionWrap = styled.div`
+const SizeWrap = styled.div`
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 8px;
-  margin-top: 24px;
+`;
+
+const ColorWrap = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const OptionRow = styled.div`
+  display: flex;
+  gap: 8px;
+  flex-wrap: nowrap;
 `;
 
 const OptionButton = styled.button`
+  min-width: 51px;
+  height: 29px;
   border: none;
   border-radius: 20px;
-  background: #f2f2f2;
-  padding: 8px 16px;
+  background: ${({ $isSelected }) => ($isSelected ? "#000" : "#f2f2f2")};
+  padding: 0 15px;
 
-  color: #616161;
+  color: ${({ $isSelected }) => ($isSelected ? "#fff" : "#616161")};
   font-family: "Pretendard", sans-serif;
-  font-size: 13px;
-  font-style: normal;
+  font-size: 11px;
   font-weight: 400;
-  line-height: normal;
 
-  text-align: center;
   cursor: pointer;
+  white-space: nowrap;
 `;

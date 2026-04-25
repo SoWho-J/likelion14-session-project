@@ -3,31 +3,43 @@ import styled from "styled-components";
 import FilterButton from "./FilterButton";
 import FilterModal from "./FilterModal";
 
-export default function FilterSection() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState("");
+const FILTERS = ["성별", "색상", "사이즈", "가격대", "종류"];
 
-  const openModal = (filterName) => {
-    setSelectedFilter(filterName);
-    setIsModalOpen(true);
+export default function FilterSection({ onFilterChange }) {
+  const [openFilter, setOpenFilter] = useState(null);
+  const [activeSelections, setActiveSelections] = useState({});
+
+  const handleToggle = (filterName) => {
+    setOpenFilter((prev) => (prev === filterName ? null : filterName));
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
+  const handleApply = (filterName, selectedOptions) => {
+    const next = { ...activeSelections, [filterName]: selectedOptions };
+    if (selectedOptions.length === 0) delete next[filterName];
+    setActiveSelections(next);
+    onFilterChange(next);
   };
 
   return (
     <>
       <FilterWrap>
-        <FilterButton text="성별" onClick={() => openModal("성별")} />
-        <FilterButton text="색상" onClick={() => openModal("색상")} />
-        <FilterButton text="사이즈" onClick={() => openModal("사이즈")} />
-        <FilterButton text="가격대" onClick={() => openModal("가격대")} />
-        <FilterButton text="종류" onClick={() => openModal("종류")} />
+        {FILTERS.map((filter) => (
+          <FilterButton
+            key={filter}
+            text={filter}
+            isActive={activeSelections[filter]?.length > 0}
+            onClick={() => handleToggle(filter)}
+          />
+        ))}
       </FilterWrap>
 
-      {isModalOpen && (
-        <FilterModal selectedFilter={selectedFilter} onClose={closeModal} />
+      {openFilter && (
+        <FilterModal
+          selectedFilter={openFilter}
+          currentSelections={activeSelections[openFilter] || []}
+          onClose={() => setOpenFilter(null)}
+          onApply={handleApply}
+        />
       )}
     </>
   );
@@ -36,8 +48,7 @@ export default function FilterSection() {
 const FilterWrap = styled.div`
   display: inline-flex;
   align-items: center;
-  gap: 13px;
-
+  gap: 8px;
   margin-left: 153px;
-  margin-top: 22px;
+  margin-top: 28px;
 `;
